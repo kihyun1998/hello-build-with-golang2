@@ -38,7 +38,7 @@ jobs:
         host: 192.168.135.80
         username: root
         key: ${{ secrets.SSH_KEY }}
-        source: "/home/user/runner2/_work/${{ github.repository }}/${{ github.repository }}/*.exe"
+        source: "/home/user/runner2/_work/${{ github.repository }}/${{ github.repository }}//*_w*"
         target: "~/build/"
 
     - name: 🧹 Clean up local directory
