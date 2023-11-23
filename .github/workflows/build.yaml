@@ -1,0 +1,30 @@
+name: Go
+
+on:
+  push:
+    tags:
+      - 'V*'
+
+jobs:
+
+  test:
+    name: 🦾 Unit Test & Build
+    runs-on: self-hosted
+
+    steps:
+
+    - name: ✅ Check out code into the Go module directory
+      uses: actions/checkout@v3
+
+    - name: Extract Tag name
+      run:  echo "TAG_NAME=$(echo ${{ github.ref }} | sed 's|refs/tags/||')" >> $GITHUB_ENV
+
+    - name: 🔥 Get dependencies
+      run: go mod download
+
+    - name: 🛠️ Build
+      run: make build
+
+    - name: 💽 Test
+      run: make test
+
