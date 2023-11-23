@@ -38,10 +38,10 @@ jobs:
         host: 192.168.135.80
         username: root
         key: ${{ secrets.SSH_KEY }}
-        source: "${{ github.workspace }}/*.exe"
-        target: "~/build/${{ steps.extract_tag.outputs.tag_name }}"
+        source: "/home/user/runner2/_work/${{ github.repository }}/${{ github.repository }}/*.exe"
+        target: "~/build/"
 
     - name: 🧹 Clean up local directory
-      run: rm -rf ${{ github.workspace }}/*
+      run: rm -rf /home/user/runner2/_work/${{ github.repository }}/${{ github.repository }}/*
 
 
