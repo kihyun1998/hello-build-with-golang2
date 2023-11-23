@@ -18,11 +18,6 @@ jobs:
     - name: 💾 Register Tag name in env
       run:  echo "TAG_NAME=$(echo ${{ github.ref }} | sed 's|refs/tags/||')" >> $GITHUB_ENV
 
-    - name: ✳️ Create Tag name variable
-      id: extract_tag
-      run:  echo "::set-output name=tag_name::$(echo ${{ github.ref }} | sed 's|refs/tags/||')"
-
-
     - name: 🔥 Get dependencies
       run: go mod download
 
@@ -39,7 +34,7 @@ jobs:
         username: root
         key: ${{ secrets.SSH_KEY }}
         source: "${{ github.workspace }}/*_w*"
-        target: "~/build/${{ steps.extract_tag.outputs.tag_name }}"
+        target: "~/build/${{ env.TAG_NAME }}"
 
     - name: 🧹 Clean up local directory
       run: rm -rf ${{ github.workspace }}/*
