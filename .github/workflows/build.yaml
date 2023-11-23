@@ -33,7 +33,7 @@ jobs:
         host: 192.168.135.80
         username: root
         key: ${{ secrets.SSH_KEY }}
-        source: "/home/user/runner1/_work/hello-build-with-golang/hello-build-with-golang/*wadd"
+        source: "/home/user/runner2/_work/hello-build-with-golang2/hello-build-with-golang2/*wsub"
         target: "~/build/"
 
     - name: 🧹 Clean up local directory
