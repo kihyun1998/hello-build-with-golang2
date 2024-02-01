@@ -24,7 +24,7 @@ jobs:
         run:  echo "TAG_NAME=$(echo ${{ github.ref }} | sed 's|refs/tags/||')" >> $GITHUB_ENV
 
       - name: Configure Git
-        run: git config --global --add safe.directory /__w
+        run: git config --global --add safe.directory /__w/hello-build-with-golang2/hello-build-with-golang2
 
       - name: ✅ git check
         run: git status
