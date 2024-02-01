@@ -37,3 +37,9 @@ jobs:
         
       - name: 🛠️ Build
         run: make build && ls -al
+
+      - name: 💾 Save file in artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{env.FILE_NAME}}
+          path: $GITHUB_WORKSPACE/${{env.FILE_NAME}}
