@@ -19,12 +19,18 @@ jobs:
     steps:
       - name: ✅ Checkout code
         uses: actions/checkout@v3
+      
+      - name: 💾 Register Tag name in env
+        run:  echo "TAG_NAME=$(echo ${{ github.ref }} | sed 's|refs/tags/||')" >> $GITHUB_ENV
+
+      - name: ✅ version check
+        run: go version
 
       - name: 🔥 Get dependencies
         run: go mod download
 
-      - name: 🛠️ Build
-        run: make build
-
       - name: 💽 Test
         run: make test
+        
+      - name: 🛠️ Build
+        run: make build

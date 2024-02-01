@@ -21,11 +21,13 @@ jobs:
     - name: 🔥 Get dependencies
       run: go mod download
 
+    - name: 💽 Test
+      run: make test
+      
     - name: 🛠️ Build
       run: make build
 
-    - name: 💽 Test
-      run: make test
+
 
     - name: 🚚 Transfer files use SFTP
       uses: appleboy/scp-action@master
