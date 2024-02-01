@@ -37,3 +37,8 @@ jobs:
         
       - name: 🛠️ Build
         run: make build
+
+      - name: 💾 Save file in artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: binaries
