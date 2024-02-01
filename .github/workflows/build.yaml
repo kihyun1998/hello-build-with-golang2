@@ -23,7 +23,7 @@ jobs:
       - name: 💾 Register Tag name in env
         run:  echo "TAG_NAME=$(echo ${{ github.ref }} | sed 's|refs/tags/||')" >> $GITHUB_ENV
 
-      - name: Configure Git
+      - name: 🧙 Config Safe Git Directory
         run: git config --global --add safe.directory /__w/hello-build-with-golang2/hello-build-with-golang2
 
       - name: ✅ git check
