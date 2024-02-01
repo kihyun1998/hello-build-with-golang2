@@ -20,8 +20,8 @@ jobs:
       - name: ✅ Checkout code
         uses: actions/checkout@v3
       
-      - name: 💾 Register Tag name in env
-        run:  echo "TAG_NAME=$(echo ${{ github.ref }} | sed 's|refs/tags/||')_wsub" >> $GITHUB_ENV
+      - name: 💾 Register File name in env
+        run:  echo "FILE_NAME=$(echo ${{ github.ref }} | sed 's|refs/tags/||')_wsub" >> $GITHUB_ENV
 
       - name: 🧙 Config Safe Git Directory
         run: git config --global --add safe.directory $GITHUB_WORKSPACE

@@ -1,5 +1,5 @@
 build:
-	go build -o $(TAG_NAME)_wsub .
+	go build -o $(FILE_NAME) .
 
 test:
 	go test -v -cover ./calc
