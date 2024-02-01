@@ -6,38 +6,16 @@ on:
       - 'V*'
 
 jobs:
-
-  test:
+  build:
     name: 🦾 Unit Test & Build
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
+    
+    container:
+      image: parkkihyun/acra-test:0.9.1
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
     steps:
-    - name: ✅ Check out code into the Go module directory
-      uses: actions/checkout@v3
-
-    - name: 💾 Register Tag name in env
-      run:  echo "TAG_NAME=$(echo ${{ github.ref }} | sed 's|refs/tags/||')" >> $GITHUB_ENV
-
-    - name: 🔥 Get dependencies
-      run: go mod download
-
-    - name: 🛠️ Build
-      run: make build
-
-    - name: 💽 Test
-      run: make test
-
-    - name: 🚚 Transfer files use SFTP
-      uses: appleboy/scp-action@master
-      with:
-        host: 192.168.135.80
-        username: root
-        key: ${{ secrets.SSH_KEY }}
-        source: "${{ github.workspace }}/*_w*"
-        target: "~/build/${{ env.TAG_NAME }}"
-
-    - name: 🧹 Clean up local directory
-      run: rm -rf ${{ github.workspace }}/*
-
-
-
+      - name: ✅ Checkout code
+        uses: actions/checkout@v3
