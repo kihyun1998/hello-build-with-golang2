@@ -2,6 +2,6 @@ build:
 	go build -o $(TAG_NAME)_wsub
 
 test:
-	go test -v .
+	go test -v -cover ./calc
 
-.PHONY: build
+.PHONY: build, test
