@@ -1,16 +1,17 @@
-package main
+package calc
 
 import (
-	"fmt"
+	"testing"
 
 	"github.com/TeamTestCodeowner/calc"
 	rand "github.com/TeamTestCodeowner/rand"
+	"github.com/stretchr/testify/require"
 )
 
-func main() {
+func TestSub(t *testing.T) {
 	num1 := rand.RandomInt(1, 1000)
 	num2 := rand.RandomInt(1, 1000)
 
-	num3 := calc.Sub(num1, num2)
-	fmt.Printf("%d - %d = %d\n", num1, num2, num3)
+	result := calc.Sub(num1, num2)
+	require.Equal(t, result, num1-num2)
 }

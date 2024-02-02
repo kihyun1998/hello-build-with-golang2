@@ -23,14 +23,22 @@ jobs:
       - name: 💾 Register File name in env
         run:  echo "FILE_NAME=$(echo ${{ github.ref }} | sed 's|refs/tags/||')_wsub" >> $GITHUB_ENV
 
-      - name: 🧙 Config Safe Git Directory
-        run: git config --global --add safe.directory $GITHUB_WORKSPACE
+      - name: 🧙 Config GO env
+        run: |
+          go env -w GOPRIVATE=github.com/TeamTestCodeowner
+          go env -json
+      
+      - name: 🧙 Config Git
+        run: |
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+          git config --global url."https://${{secrets.GIT_USERNAME}}:${{secrets.TOKEN}}@github.com/TeamTestCodeowner".insteadOf "https://github.com/TeamTestCodeowner"
+          git config -l
 
       - name: ✅ git check
         run: git status
 
       - name: 🔥 Get dependencies
-        run: go mod download
+        run: go mod tidy
 
       - name: 💽 Test
         run: make test
