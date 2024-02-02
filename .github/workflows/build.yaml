@@ -94,6 +94,7 @@ jobs:
         with:
           tag_name: ${{env.TAG_NAME}}
           release_name: Release ${{env.FILE_NAME}}
+          body: Release Success !\n이부분은 릴리즈 노트를 작성하는 부분입니다.
           draft: false
           prerelease: false
 
