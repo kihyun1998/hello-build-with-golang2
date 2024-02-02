@@ -46,6 +46,12 @@ jobs:
       - name: 🛠️ Build
         run: make build && ls -al
 
+      - name: 📥 Save Environment Variable
+        uses: actions/upload-artifact@v3
+        with:
+          name: env-var
+          path: $GITHUB_ENV
+
       - name: 💾 Save file in artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -65,3 +71,42 @@ jobs:
           to: pentakihyun@gmail.com
           from: ${{ secrets.EMAIL_USERNAME }}
           attachments: ${{github.workspace}}/${{env.FILE_NAME}}
+  
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check workspace
+        run: cat ${{github.workspace}}
+
+      - name: Download Artifact - env-var
+        uses: actions/download-artifact@v3
+        with:
+          name: env-var
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{env.FILE_NAME}}
+          path: ${{github.workspace}}
+
+      # - name: Create Release
+      #   id: create_release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag_name: ${{ github.ref }}
+      #     release_name: Release ${{ github.ref }}
+      #     draft: false
+      #     prerelease: false
+
+      # - name: Upload Release Asset
+      #   uses: actions/upload-release-asset@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: ./path/to/your/artifact
+      #     asset_name: my-artifact.zip
+      #     asset_content_type: application/zip
