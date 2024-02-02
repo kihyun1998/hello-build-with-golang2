@@ -77,7 +77,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check workspace
-        run: cat "${{github.workspace}}"
+        run: echo ${{github.workspace}}
 
       - name: Download Artifact - env-var
         uses: actions/download-artifact@v3
