@@ -46,12 +46,6 @@ jobs:
       - name: 🛠️ Build
         run: make build && ls -al
 
-      - name: 📥 Save Environment Variable
-        uses: actions/upload-artifact@v3
-        with:
-          name: env-var
-          path: $GITHUB_ENV
-
       - name: 💾 Save file in artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -79,10 +73,8 @@ jobs:
       - name: Check workspace
         run: echo ${{github.workspace}}
 
-      - name: Download Artifact - env-var
-        uses: actions/download-artifact@v3
-        with:
-          name: env-var
+      - name: 💾 Register File name in env
+        run:  echo "FILE_NAME=$(echo ${{ github.ref }} | sed 's|refs/tags/||')_wsub" >> $GITHUB_ENV
 
       - name: Download Artifact
         uses: actions/download-artifact@v3
