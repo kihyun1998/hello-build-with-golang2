@@ -67,7 +67,16 @@ jobs:
           to: pentakihyun@gmail.com
           from: ${{ secrets.EMAIL_USERNAME }}
           attachments: ${{github.workspace}}/${{env.FILE_NAME}}
-  
+      
+      - name: 📥 Notify on Slack when Success
+        if: success()
+        uses: slackapi/slack-github-action@v1.15.0
+        with:
+          channel-id: 'your-slack-channel-id'
+          slack-message: 'Build succeeded! 🌞' 
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
   release:
     needs: build
     runs-on: ubuntu-latest
