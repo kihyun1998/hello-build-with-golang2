@@ -106,6 +106,21 @@ jobs:
                       "title": "Version",
                       "value": "${{ github.ref_name }}",
                       "short": true
+                    },
+                    {
+                      "title": "Branch",
+                      "value": "${{ github.ref_name }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Commit",
+                      "value": "<https://github.com/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha_short }}>",
+                      "short": true
+                    },
+                    {
+                      "title": "Actions Log",
+                      "value": "<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Workflow Log>",
+                      "short": true
                     }
                   ]      
                 }
