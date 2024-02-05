@@ -20,6 +20,9 @@ jobs:
       - name: ✅ Checkout code
         uses: actions/checkout@v3
       
+      - name: echo ref_name
+        run: echo ${{github.ref_name}}
+
       - name: 💾 Register File name in env
         run:  |
           echo "FILE_NAME=$(echo ${{ github.ref }} | sed 's|refs/tags/||')_wsub" >> $GITHUB_ENV
@@ -68,16 +71,49 @@ jobs:
           from: ${{ secrets.EMAIL_USERNAME }}
           attachments: ${{github.workspace}}/${{env.FILE_NAME}}
       
+      # - name: 📥 Notify on Slack when Success
+      #   if: success()
+      #   uses: rtCamp/action-slack-notify@v2
+      #   env:
+      #     SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+      #     SLACK_CHANNEL: C06HT8UA1H6
+      #     SLACK_COLOR: good
+      #     SLACK_MESSAGE: 'Build succeeded! :tada:'
+      #     SLACK_TITLE: 'Success Notification'
+      #     SLACK_USERNAME: 'GitHub Actions'
+      
       - name: 📥 Notify on Slack when Success
         if: success()
-        uses: rtCamp/action-slack-notify@v2
+        id: slack-success
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "channel": "C06HT8UA1H6",
+              "attachments": [
+                {
+                  "color": "#36a64f",
+                  "title": "Build in ${{ github.repository }}",
+                  "title_link": "https://github.com/${{github.repository}}",
+                  "text": "🚀 GitHub Action 성공",
+                  "fields": [
+                    {
+                      "title": "Repository",
+                      "value": "${{ github.repository }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Version",
+                      "value": "${{ github.ref_name }}",
+                      "short": true
+                    }
+                  ]      
+                }
+              ]
+            }
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_CHANNEL: C06HT8UA1H6
-          SLACK_COLOR: good
-          SLACK_MESSAGE: 'Build succeeded! :tada:'
-          SLACK_TITLE: 'Success Notification'
-          SLACK_USERNAME: 'GitHub Actions'
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
           
       - name: 📥 Notify on Slack when Success Failure
