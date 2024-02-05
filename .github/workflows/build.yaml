@@ -83,52 +83,56 @@ jobs:
       #     SLACK_USERNAME: 'GitHub Actions'
       
       - name: 📥 Notify on Slack when Success
-        if: success()
+        
         id: slack-success
-        uses: slackapi/slack-github-action@v1.24.0
+        uses: 8398a7/action-slack@v3
         with:
-          payload: |
-            {
-              "channel": "C06HT8UA1H6",
-              "attachments": [
-                {
-                  "color": "#36a64f",
-                  "title": "Build in ${{ github.repository }}",
-                  "title_link": "https://github.com/${{github.repository}}",
-                  "text": "🚀 GitHub Action 성공",
-                  "fields": [
-                    {
-                      "title": "Repository",
-                      "value": "${{ github.repository }}",
-                      "short": true
-                    },
-                    {
-                      "title": "Version",
-                      "value": "${{ github.ref_name }}",
-                      "short": true
-                    },
-                    {
-                      "title": "Branch",
-                      "value": "${{ github.ref_name }}",
-                      "short": true
-                    },
-                    {
-                      "title": "Commit",
-                      "value": "<https://github.com/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha_short }}>",
-                      "short": true
-                    },
-                    {
-                      "title": "Actions Log",
-                      "value": "<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Workflow Log>",
-                      "short": true
-                    }
-                  ]      
-                }
-              ]
-            }
+          status: ${{job.status}}
+          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took,pullRequest
+          mention: here
+          if_mention: failure, cancelled
+          # payload: |
+          #   {
+          #     "channel": "C06HT8UA1H6",
+          #     "attachments": [
+          #       {
+          #         "color": "#36a64f",
+          #         "title": "Build in ${{ github.repository }}",
+          #         "title_link": "https://github.com/${{github.repository}}",
+          #         "text": "🚀 GitHub Action 성공",
+          #         "fields": [
+          #           {
+          #             "title": "Repository",
+          #             "value": "${{ github.repository }}",
+          #             "short": true
+          #           },
+          #           {
+          #             "title": "Version",
+          #             "value": "${{ github.ref_name }}",
+          #             "short": true
+          #           },
+          #           {
+          #             "title": "Branch",
+          #             "value": "${{ github.ref_name }}",
+          #             "short": true
+          #           },
+          #           {
+          #             "title": "Commit",
+          #             "value": "<https://github.com/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha_short }}>",
+          #             "short": true
+          #           },
+          #           {
+          #             "title": "Actions Log",
+          #             "value": "<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Workflow Log>",
+          #             "short": true
+          #           }
+          #         ]      
+          #       }
+          #     ]
+          #   }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+        if: always()
 
           
       - name: 📥 Notify on Slack when Success Failure
