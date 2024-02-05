@@ -20,13 +20,16 @@ jobs:
       - name: ✅ Checkout code
         uses: actions/checkout@v3
       
-      - name: echo ref_name
-        run: echo ${{github.ref_name}}
+      - name: Set outputs
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - name: Check outputs
+        run: echo ${{ steps.vars.outputs.sha_short }}
 
       - name: 💾 Register File name in env
         run:  |
           echo "FILE_NAME=$(echo ${{ github.ref }} | sed 's|refs/tags/||')_wsub" >> $GITHUB_ENV
-          echo "TAG_NAME=$(echo ${{ github.ref }} | sed 's|refs/tags/||')" >> $GITHUB_ENV
+          echo "TAG_NAME=$(echo ${{ github.ref_name }})" >> $GITHUB_ENV
 
       - name: 🧙 Config GO env
         run: |
@@ -83,56 +86,52 @@ jobs:
       #     SLACK_USERNAME: 'GitHub Actions'
       
       - name: 📥 Notify on Slack when Success
-        
+        if: success()
         id: slack-success
-        uses: 8398a7/action-slack@v3
+        uses: slackapi/slack-github-action@v1.24.0
         with:
-          status: ${{job.status}}
-          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took,pullRequest
-          mention: here
-          if_mention: failure, cancelled
-          # payload: |
-          #   {
-          #     "channel": "C06HT8UA1H6",
-          #     "attachments": [
-          #       {
-          #         "color": "#36a64f",
-          #         "title": "Build in ${{ github.repository }}",
-          #         "title_link": "https://github.com/${{github.repository}}",
-          #         "text": "🚀 GitHub Action 성공",
-          #         "fields": [
-          #           {
-          #             "title": "Repository",
-          #             "value": "${{ github.repository }}",
-          #             "short": true
-          #           },
-          #           {
-          #             "title": "Version",
-          #             "value": "${{ github.ref_name }}",
-          #             "short": true
-          #           },
-          #           {
-          #             "title": "Branch",
-          #             "value": "${{ github.ref_name }}",
-          #             "short": true
-          #           },
-          #           {
-          #             "title": "Commit",
-          #             "value": "<https://github.com/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha_short }}>",
-          #             "short": true
-          #           },
-          #           {
-          #             "title": "Actions Log",
-          #             "value": "<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Workflow Log>",
-          #             "short": true
-          #           }
-          #         ]      
-          #       }
-          #     ]
-          #   }
+          payload: |
+            {
+              "channel": "C06HT8UA1H6",
+              "attachments": [
+                {
+                  "color": "#36a64f",
+                  "title": "Build in ${{ github.repository }}",
+                  "title_link": "https://github.com/${{github.repository}}",
+                  "text": "🚀 GitHub Action 성공",
+                  "fields": [
+                    {
+                      "title": "Repository",
+                      "value": "${{ github.repository }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Version",
+                      "value": "${{ github.ref_name }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Branch",
+                      "value": "${{ github.ref_name }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Commit",
+                      "value": "<https://github.com/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sh }}>",
+                      "short": true
+                    },
+                    {
+                      "title": "Actions Log",
+                      "value": "<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Workflow Log>",
+                      "short": true
+                    }
+                  ]      
+                }
+              ]
+            }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        if: always()
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
           
       - name: 📥 Notify on Slack when Success Failure
