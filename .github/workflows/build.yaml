@@ -1,6 +1,7 @@
 name: Go
 
 on:
+  # V로 시작하는 태그가 푸쉬 되면 CI를 시작한다.
   push:
     tags:
       - 'V*'
