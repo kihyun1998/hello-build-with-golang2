@@ -117,7 +117,7 @@ jobs:
                     },
                     {
                       "title": "Commit",
-                      "value": "<https://github.com/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sh }}>",
+                      "value": "<https://github.com/${{ github.repository }}/commit/${{ github.sha }}|${{ steps.vars.outputs.sha_short }}>",
                       "short": true
                     },
                     {
