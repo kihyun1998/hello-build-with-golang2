@@ -2,29 +2,41 @@ name: Go
 
 on:
   push:
+    # V로 시작하는 태그가 푸쉬 되면 CI를 시작한다.
     tags:
       - 'V*'
 
+# jobs 안에 여러 job을 정의할 수 있다.
 jobs:
+
+  # 첫 번째 job인 build를 정의하는 구간
   build:
+    # name으로 job의 이름을 자유롭게 커스텀 할 수 있다.
     name: 🦾 Unit Test & Build
+
+    # CI가 실행될 환경을 정의
     runs-on: ubuntu-latest
     
+    # 도커에서 한다면 사용할 도커에 대한 정보를 정의
     container:
+      # 도커 이미지 이름
       image: parkkihyun/acra-test:0.9.1
+      # 도커가 private인 경우에 username과 password를 전달해야함.
       credentials:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
+    
+    # job에서 이루어질 steps를 정의하는 부분
     steps:
+      # git init
+      # git config
+      # git fetch
+      # git checkout
+      # git log
+      # 명령어를 자동화 해주는 부분
       - name: ✅ Checkout code
         uses: actions/checkout@v3
       
-      - name: Set outputs
-        id: vars
-        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-      - name: Check outputs
-        run: echo ${{ steps.vars.outputs.sha_short }}
 
       - name: 💾 Register File name in env
         run:  |
@@ -44,6 +56,12 @@ jobs:
 
       - name: ✅ git check
         run: git status
+    
+      - name: Set outputs
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - name: Check outputs
+        run: echo ${{ steps.vars.outputs.sha_short }}
 
       - name: 🔥 Get dependencies
         run: go mod tidy
@@ -145,7 +163,7 @@ jobs:
           SLACK_TITLE: 'Failure Notification'
           SLACK_USERNAME: 'GitHub Actions'
 
-
+  # 2번째 job인 release를 정의하는 구간
   release:
     needs: build
     runs-on: ubuntu-latest
