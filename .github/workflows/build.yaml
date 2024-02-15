@@ -6,10 +6,8 @@ on:
       - 'V*'
 
 jobs:
-
   build:
     name: 🦾 Unit Test & Build
-
     runs-on: ubuntu-latest
     
     container:
@@ -17,11 +15,16 @@ jobs:
       credentials:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
-    
+
     steps:
       - name: ✅ Checkout code
         uses: actions/checkout@v3
       
+      - name: Set outputs
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - name: Check outputs
+        run: echo ${{ steps.vars.outputs.sha_short }}
 
       - name: 💾 Register File name in env
         run:  |
@@ -41,12 +44,6 @@ jobs:
 
       - name: ✅ git check
         run: git status
-    
-      - name: Set outputs
-        id: vars
-        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-      - name: Check outputs
-        run: echo ${{ steps.vars.outputs.sha_short }}
 
       - name: 🔥 Get dependencies
         run: go mod tidy
@@ -148,7 +145,7 @@ jobs:
           SLACK_TITLE: 'Failure Notification'
           SLACK_USERNAME: 'GitHub Actions'
 
-  # 2번째 job인 release를 정의하는 구간
+
   release:
     needs: build
     runs-on: ubuntu-latest
