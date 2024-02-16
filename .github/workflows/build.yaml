@@ -6,73 +6,106 @@ on:
     tags:
       - 'V*'
 
+# jobs 안에 여러 job을 정의할 수 있다.
 jobs:
+  # 첫 번째 job인 build를 정의하는 구간
   build:
+    # name으로 job의 이름을 자유롭게 커스텀 할 수 있다.
     name: 🦾 Unit Test & Build
+    # CI가 실행될 환경을 정의
     runs-on: ubuntu-latest
     
+    # 도커에서 CI 하겠다는 뜻
     container:
+      # 도커 이미지 이름
       image: parkkihyun/acra-test:0.9.1
+      # 도커가 private인 경우에 username과 password를 전달해야함.
       credentials:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
+    
+    # job에서 이루어질 steps를 정의하는 부분
     steps:
+      # git init
+      # git config
+      # git fetch
+      # git checkout
+      # git log
+      # 명령어를 자동화 해주는 부분
       - name: ✅ Checkout code
         uses: actions/checkout@v3
       
+      # 환경변수 정의(파일이름, 태그이름)
+      # 태그이름은 V3.0.0 으로만 push한다면 github.ref_name으로 접근할 수 있음
       - name: 💾 Register File name in env
         run:  |
           echo "FILE_NAME=$(echo ${{ github.ref }} | sed 's|refs/tags/||')_wsub" >> $GITHUB_ENV
           echo "TAG_NAME=$(echo ${{ github.ref_name }})" >> $GITHUB_ENV
 
+      # go package 가져올 private 저장소에 대한 설정
       - name: 🧙 Config GO env
         run: |
           go env -w GOPRIVATE=github.com/TeamTestCodeowner
           go env -json
       
+      # git을 safe directory로 설정 및 private 저장소 설정
       - name: 🧙 Config Git
         run: |
           git config --global --add safe.directory $GITHUB_WORKSPACE
           git config --global url."https://${{secrets.GIT_USERNAME}}:${{secrets.TOKEN}}@github.com/TeamTestCodeowner".insteadOf "https://github.com/TeamTestCodeowner"
           git config -l
 
+      # git 상태 확인
       - name: ✅ git check
         run: git status
       
+      # 커밋 해시값 short 구하는 부분(slack notifier에서 사용)
       - name: Set outputs
         id: vars
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       - name: Check outputs
         run: echo ${{ steps.vars.outputs.sha_short }}
 
+      # go get
       - name: 🔥 Get dependencies
         run: go mod tidy
 
+      # test
       - name: 💽 Test
         run: make test
-        
+      
+      # build
       - name: 🛠️ Build
         run: make build && ls -al
 
+      # artifact에 build file 저장
       - name: 💾 Save file in artifacts
         uses: actions/upload-artifact@v3
         with:
+          # artifact 저장할 파일 이름 지정
           name: ${{env.FILE_NAME}}
+          # artifact가 있는 경로 지정
           path: ${{github.workspace}}/${{env.FILE_NAME}}
       
+      # email 전송
       - name: 📩 Send email
         if: success()
         uses: dawidd6/action-send-mail@v3
         with:
+          # smtp 설정
           server_address: smtp.gmail.com
           server_port: 465
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
+          # 메일 제목
           subject: From Github Actions's build file
+          # 메일 내용
           body: Hi! This is artifacts of ${{github.repository}}.
-          to: pentakihyun@gmail.com
+          # 받는 사람
+          to: pentakihyun@gmail.com, kihyun1998@penta.co.kr
+          # 보내는 사람
           from: ${{ secrets.EMAIL_USERNAME }}
+          # 지금 github 환경에 있는 빌드 파일의 경로를 통해서 파일을 보냄
           attachments: ${{github.workspace}}/${{env.FILE_NAME}}
       
       # - name: 📥 Notify on Slack when Success
@@ -86,6 +119,7 @@ jobs:
       #     SLACK_TITLE: 'Success Notification'
       #     SLACK_USERNAME: 'GitHub Actions'
       
+      # slack에 공지
       - name: 📥 Notify on Slack when Success
         if: success()
         id: slack-success
@@ -140,15 +174,18 @@ jobs:
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          # slack 채널
           SLACK_CHANNEL: C06HT8UA1H6
           SLACK_COLOR: danger
           SLACK_MESSAGE: 'Build failed! :x:'
           SLACK_TITLE: 'Failure Notification'
           SLACK_USERNAME: 'GitHub Actions'
 
-
+  # 두 번째 job인 release
   release:
+    # needs build는 build가 끝나야 이걸 하겠다는 뜻
     needs: build
+    # 다시 새로운 환경에서 시작하는 것이다. 위의 환경은 이미 초기화하고 없는 상태
     runs-on: ubuntu-latest
     steps:
       - name: Check workspace
@@ -159,13 +196,16 @@ jobs:
           echo "FILE_NAME=$(echo ${{ github.ref }} | sed 's|refs/tags/||')_wsub" >> $GITHUB_ENV
           echo "TAG_NAME=$(echo ${{ github.ref }} | sed 's|refs/tags/||')" >> $GITHUB_ENV
 
+      # build job에서 올려놓은 artifact를 다운로드 받는 부분
       - name: Download Artifact
         uses: actions/download-artifact@v3
         with:
           name: ${{env.FILE_NAME}}
           path: ${{github.workspace}}
-
+      
+      # release를 만드는 부분
       - name: Create Release
+        # id를 주는 이유는 밑에 upload하는 부분에서 만든 릴리즈 url에 쉽게 접근하기 위해서
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -179,9 +219,12 @@ jobs:
 
             ## sub
             - 뺄셈 프로그램입니다.
+          # draft true이면 비공개 릴리즈
           draft: false
+          # prerelease true는 안정적인 버전이 아니라는 것을 명시
           prerelease: false
-
+      
+      # 만든 릴리즈에 업로드 하기
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         env:
@@ -189,5 +232,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{github.workspace}}/${{env.FILE_NAME}}
+          # zip도 되고 tar도 가능
           asset_name: ${{env.FILE_NAME}}.tar
+          # zip을 하려면 이 부분에서 'application/zip'로 작성하면 된다.
           asset_content_type: application/x-tar
